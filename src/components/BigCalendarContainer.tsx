@@ -6,21 +6,21 @@ const BigCalendarContainer = async ({
   type,
   id,
 }: {
-  type: "teacherId" | "classId";
+  type: "doctorId" | "departmentId";
   id: string | number;
 }) => {
-  const dataRes = await prisma.lesson.findMany({
+  const dataRes = await prisma.medical.findMany({
     where: {
-      ...(type === "teacherId"
-        ? { teacherId: id as string }
-        : { classId: id as number }),
+      ...(type === "doctorId"
+        ? { doctorId: id as string }
+        : { departmentId: id as number }),
     },
   });
 
-  const data = dataRes.map((lesson) => ({
-    title: lesson.name,
-    start: lesson.startTime,
-    end: lesson.endTime,
+  const data = dataRes.map((medical) => ({
+    title: medical.name,
+    start: medical.startTime,
+    end: medical.endTime,
   }));
 
   const schedule = adjustScheduleToCurrentWeek(data);

@@ -4,30 +4,28 @@ import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { Announcement, Class, Prisma } from "@prisma/client";
+import { Announcement, Department, Prisma } from "@prisma/client";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 
-
-type AnnouncementList = Announcement & { class: Class };
+type AnnouncementList = Announcement & { department: Department };
 const AnnouncementListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  
   const { userId, sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
   const currentUserId = userId;
-  
+
   const columns = [
     {
       header: "Title",
       accessor: "title",
     },
     {
-      header: "Class",
-      accessor: "class",
+      header: "Department",
+      accessor: "department",
     },
     {
       header: "Date",
@@ -43,14 +41,14 @@ const AnnouncementListPage = async ({
         ]
       : []),
   ];
-  
+
   const renderRow = (item: AnnouncementList) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
       <td className="flex items-center gap-4 p-4">{item.title}</td>
-      <td>{item.class?.name || "-"}</td>
+      <td>{item.department?.name || "-"}</td>
       <td className="hidden md:table-cell">
         {new Intl.DateTimeFormat("en-US").format(item.date)}
       </td>
@@ -91,15 +89,15 @@ const AnnouncementListPage = async ({
   // ROLE CONDITIONS
 
   const roleConditions = {
-    teacher: { lessons: { some: { teacherId: currentUserId! } } },
-    student: { students: { some: { id: currentUserId! } } },
-    parent: { students: { some: { parentId: currentUserId! } } },
+    doctor: { medicals: { some: { doctorId: currentUserId! } } },
+    patient: { patients: { some: { id: currentUserId! } } },
+    parent: { patients: { some: { parentId: currentUserId! } } },
   };
 
   query.OR = [
-    { classId: null },
+    { departmentId: null },
     {
-      class: roleConditions[role as keyof typeof roleConditions] || {},
+      department: roleConditions[role as keyof typeof roleConditions] || {},
     },
   ];
 
@@ -107,7 +105,7 @@ const AnnouncementListPage = async ({
     prisma.announcement.findMany({
       where: query,
       include: {
-        class: true,
+        department: true,
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

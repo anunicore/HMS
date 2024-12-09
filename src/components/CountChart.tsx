@@ -7,21 +7,20 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-
 const CountChart = ({ boys, girls }: { boys: number; girls: number }) => {
   const data = [
     {
       name: "Total",
-      count: boys+girls,
+      count: boys + girls,
       fill: "white",
     },
     {
-      name: "Girls",
+      name: "girls",
       count: girls,
       fill: "#FAE27C",
     },
     {
-      name: "Boys",
+      name: "boys",
       count: boys,
       fill: "#C3EBFA",
     },

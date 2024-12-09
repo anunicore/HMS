@@ -1,11 +1,10 @@
 "use client";
-
 import {
-  deleteClass,
-  deleteExam,
-  deleteStudent,
-  deleteSubject,
-  deleteTeacher,
+  deleteDepartment,
+  deleteDescription,
+  deletePatient,
+  deleteSpecialty,
+  deleteDoctor,
 } from "@/lib/actions";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -16,41 +15,48 @@ import { toast } from "react-toastify";
 import { FormContainerProps } from "./FormContainer";
 
 const deleteActionMap = {
-  subject: deleteSubject,
-  class: deleteClass,
-  teacher: deleteTeacher,
-  student: deleteStudent,
-  exam: deleteExam,
-// TODO: OTHER DELETE ACTIONS
-  parent: deleteSubject,
-  lesson: deleteSubject,
-  assignment: deleteSubject,
-  result: deleteSubject,
-  attendance: deleteSubject,
-  event: deleteSubject,
-  announcement: deleteSubject,
+  specialty: deleteSpecialty,
+  department: deleteDepartment,
+  doctor: deleteDoctor,
+  patient: deletePatient,
+  description: deleteDescription,
+  // TODO: OTHER DELETE ACTIONS
+  parent: deleteSpecialty,
+  medical: deleteSpecialty,
+  assignment: deleteSpecialty,
+  prescription: deleteSpecialty,
+  attendance: deleteSpecialty,
+  event: deleteSpecialty,
+  announcement: deleteSpecialty,
 };
 
 // USE LAZY LOADING
 
-// import TeacherForm from "./forms/TeacherForm";
-// import StudentForm from "./forms/StudentForm";
+// import DoctorForm from "./forms/DoctorForm";
+// import PatientForm from "./forms/PatientForm";
+//import DepartmentForm from "./forms/DepartmentForm";
 
-const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
+const DoctorForm = dynamic(() => import("./forms/DoctorForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const StudentForm = dynamic(() => import("./forms/StudentForm"), {
+// const PatientForm = dynamic(() => import("./forms/PatientForm"), {
+//   loading: () => <h1>Loading...</h1>,
+// });
+const PatientForm = dynamic(() => import("./forms/PatientForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const SubjectForm = dynamic(() => import("./forms/SubjectForm"), {
+const SpecialtyForm = dynamic(() => import("./forms/SpecialtyForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ClassForm = dynamic(() => import("./forms/ClassForm"), {
+const DepartmentForm = dynamic(() => import("./forms/DepartmentForm"), {
   loading: () => <h1>Loading...</h1>,
 });
-const ExamForm = dynamic(() => import("./forms/ExamForm"), {
-  loading: () => <h1>Loading...</h1>,
-});
+const MedicalDescriptionForm = dynamic(
+  () => import("./forms/DescriptionForm"),
+  {
+    loading: () => <h1>Loading...</h1>,
+  }
+);
 // TODO: OTHER FORMS
 
 const forms: {
@@ -61,40 +67,40 @@ const forms: {
     relatedData?: any
   ) => JSX.Element;
 } = {
-  subject: (setOpen, type, data, relatedData) => (
-    <SubjectForm
+  specialty: (setOpen, type, data, relatedData) => (
+    <SpecialtyForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  class: (setOpen, type, data, relatedData) => (
-    <ClassForm
+  department: (setOpen, type, data, relatedData) => (
+    <DepartmentForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  teacher: (setOpen, type, data, relatedData) => (
-    <TeacherForm
+  doctor: (setOpen, type, data, relatedData) => (
+    <DoctorForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  student: (setOpen, type, data, relatedData) => (
-    <StudentForm
+  patient: (setOpen, type, data, relatedData) => (
+    <PatientForm
       type={type}
       data={data}
       setOpen={setOpen}
       relatedData={relatedData}
     />
   ),
-  exam: (setOpen, type, data, relatedData) => (
-    <ExamForm
+  medicaldescription: (setOpen, type, data, relatedData) => (
+    <MedicalDescriptionForm
       type={type}
       data={data}
       setOpen={setOpen}
@@ -104,6 +110,13 @@ const forms: {
   ),
 };
 
+const getFormComponent = (key: string) => {
+  if (forms[key]) {
+    return forms[key];
+  }
+  // eslint-disable-next-line react/display-name
+  return () => <>Form not found!</>; // Default component for invalid keys
+};
 const FormModal = ({
   table,
   type,
@@ -135,7 +148,8 @@ const FormModal = ({
         setOpen(false);
         router.refresh();
       }
-    }, [state, router]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state, router, table]);
 
     return type === "delete" && id ? (
       <form action={formAction} className="p-4 flex flex-col gap-4">
@@ -148,7 +162,7 @@ const FormModal = ({
         </button>
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, data, relatedData)
+      getFormComponent(table)(setOpen, type, data, relatedData)
     ) : (
       "Form not found!"
     );

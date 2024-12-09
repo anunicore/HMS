@@ -1,24 +1,24 @@
 import { z } from "zod";
 
-export const subjectSchema = z.object({
+export const specialtySchema = z.object({
   id: z.coerce.number().optional(),
-  name: z.string().min(1, { message: "Subject name is required!" }),
-  teachers: z.array(z.string()), //teacher ids
+  name: z.string().min(1, { message: "Specialty name is required!" }),
+  doctors: z.array(z.string()), //doctor ids
 });
 
-export type SubjectSchema = z.infer<typeof subjectSchema>;
+export type SpecialtySchema = z.infer<typeof specialtySchema>;
 
-export const classSchema = z.object({
+export const departmentSchema = z.object({
   id: z.coerce.number().optional(),
-  name: z.string().min(1, { message: "Subject name is required!" }),
+  name: z.string().min(1, { message: "Specialty name is required!" }),
   capacity: z.coerce.number().min(1, { message: "Capacity name is required!" }),
-  gradeId: z.coerce.number().min(1, { message: "Grade name is required!" }),
+  areasId: z.coerce.number().min(1, { message: "Areas name is required!" }),
   supervisorId: z.coerce.string().optional(),
 });
 
-export type ClassSchema = z.infer<typeof classSchema>;
+export type DepartmentSchema = z.infer<typeof departmentSchema>;
 
-export const teacherSchema = z.object({
+export const doctorSchema = z.object({
   id: z.string().optional(),
   username: z
     .string()
@@ -39,15 +39,15 @@ export const teacherSchema = z.object({
   phone: z.string().optional(),
   address: z.string(),
   img: z.string().optional(),
-  bloodType: z.string().min(1, { message: "Blood Type is required!" }),
+  Qualifications: z.string().min(1, { message: "Qualifications is required!" }),
   birthday: z.coerce.date({ message: "Birthday is required!" }),
   sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
-  subjects: z.array(z.string()).optional(), // subject ids
+  specialties: z.array(z.string()).optional(), // specialty ids
 });
 
-export type TeacherSchema = z.infer<typeof teacherSchema>;
+export type DoctorSchema = z.infer<typeof doctorSchema>;
 
-export const studentSchema = z.object({
+export const patientSchema = z.object({
   id: z.string().optional(),
   username: z
     .string()
@@ -68,22 +68,24 @@ export const studentSchema = z.object({
   phone: z.string().optional(),
   address: z.string(),
   img: z.string().optional(),
-  bloodType: z.string().min(1, { message: "Blood Type is required!" }),
+  bloodType: z.string().min(1, { message: "Blood Type is required!"}),
   birthday: z.coerce.date({ message: "Birthday is required!" }),
   sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
-  gradeId: z.coerce.number().min(1, { message: "Grade is required!" }),
-  classId: z.coerce.number().min(1, { message: "Class is required!" }),
+  areasId: z.coerce.number().min(1, { message: "Areas is required!" }),
+  departmentId: z.coerce
+    .number()
+    .min(1, { message: "Department is required!" }),
   parentId: z.string().min(1, { message: "Parent Id is required!" }),
 });
 
-export type StudentSchema = z.infer<typeof studentSchema>;
+export type PatientSchema = z.infer<typeof patientSchema>;
 
-export const examSchema = z.object({
+export const medicaldescriptionSchema = z.object({
   id: z.coerce.number().optional(),
   title: z.string().min(1, { message: "Title name is required!" }),
   startTime: z.coerce.date({ message: "Start time is required!" }),
   endTime: z.coerce.date({ message: "End time is required!" }),
-  lessonId: z.coerce.number({ message: "Lesson is required!" }),
+  medicalId: z.coerce.number({ message: "Medical is required!" }),
 });
 
-export type ExamSchema = z.infer<typeof examSchema>;
+export type MedicalDescriptionSchema = z.infer<typeof medicaldescriptionSchema>;

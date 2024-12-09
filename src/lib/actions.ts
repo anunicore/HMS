@@ -2,32 +2,32 @@
 
 import { revalidatePath } from "next/cache";
 import {
-  ClassSchema,
-  ExamSchema,
-  StudentSchema,
-  SubjectSchema,
-  TeacherSchema,
+  DepartmentSchema,
+  MedicalDescriptionSchema,
+  PatientSchema,
+  SpecialtySchema,
+  DoctorSchema,
 } from "./formValidationSchemas";
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 
 type CurrentState = { success: boolean; error: boolean };
 
-export const createSubject = async (
+export const createSpecialty = async (
   currentState: CurrentState,
-  data: SubjectSchema
+  data: SpecialtySchema
 ) => {
   try {
-    await prisma.subject.create({
+    await prisma.specialty.create({
       data: {
         name: data.name,
-        teachers: {
-          connect: data.teachers.map((teacherId) => ({ id: teacherId })),
+        doctors: {
+          connect: data.doctors.map((doctorId) => ({ id: doctorId })),
         },
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -35,24 +35,24 @@ export const createSubject = async (
   }
 };
 
-export const updateSubject = async (
+export const updateSpecialty = async (
   currentState: CurrentState,
-  data: SubjectSchema
+  data: SpecialtySchema
 ) => {
   try {
-    await prisma.subject.update({
+    await prisma.specialty.update({
       where: {
         id: data.id,
       },
       data: {
         name: data.name,
-        teachers: {
-          set: data.teachers.map((teacherId) => ({ id: teacherId })),
+        doctors: {
+          set: data.doctors.map((doctorId) => ({ id: doctorId })),
         },
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -60,19 +60,19 @@ export const updateSubject = async (
   }
 };
 
-export const deleteSubject = async (
+export const deleteSpecialty = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string;
   try {
-    await prisma.subject.delete({
+    await prisma.specialty.delete({
       where: {
         id: parseInt(id),
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -80,16 +80,16 @@ export const deleteSubject = async (
   }
 };
 
-export const createClass = async (
+export const createDepartment = async (
   currentState: CurrentState,
-  data: ClassSchema
+  data: DepartmentSchema
 ) => {
   try {
-    await prisma.class.create({
+    await prisma.department.create({
       data,
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/department");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -97,19 +97,19 @@ export const createClass = async (
   }
 };
 
-export const updateClass = async (
+export const updateDepartment = async (
   currentState: CurrentState,
-  data: ClassSchema
+  data: DepartmentSchema
 ) => {
   try {
-    await prisma.class.update({
+    await prisma.department.update({
       where: {
         id: data.id,
       },
       data,
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/department");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -117,19 +117,19 @@ export const updateClass = async (
   }
 };
 
-export const deleteClass = async (
+export const deleteDepartment = async (
   currentState: CurrentState,
   data: FormData
 ) => {
   const id = data.get("id") as string;
   try {
-    await prisma.class.delete({
+    await prisma.department.delete({
       where: {
         id: parseInt(id),
       },
     });
 
-    // revalidatePath("/list/class");
+    // revalidatePath("/list/department");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -137,9 +137,9 @@ export const deleteClass = async (
   }
 };
 
-export const createTeacher = async (
+export const createDoctor = async (
   currentState: CurrentState,
-  data: TeacherSchema
+  data: DoctorSchema
 ) => {
   try {
     const user = await clerkClient.users.createUser({
@@ -147,10 +147,10 @@ export const createTeacher = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"teacher"}
+      publicMetadata: { role: "doctor" },
     });
 
-    await prisma.teacher.create({
+    await prisma.doctor.create({
       data: {
         id: user.id,
         username: data.username,
@@ -160,18 +160,18 @@ export const createTeacher = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        bloodType: data.bloodType,
+        qualifications: data.Qualifications,
         sex: data.sex,
         birthday: data.birthday,
-        subjects: {
-          connect: data.subjects?.map((subjectId: string) => ({
-            id: parseInt(subjectId),
+        specialties: {
+          connect: data.specialties?.map((specialtyId: string) => ({
+            id: parseInt(specialtyId),
           })),
         },
       },
     });
 
-    // revalidatePath("/list/teachers");
+    // revalidatePath("/list/doctors");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -179,9 +179,9 @@ export const createTeacher = async (
   }
 };
 
-export const updateTeacher = async (
+export const updateDoctor = async (
   currentState: CurrentState,
-  data: TeacherSchema
+  data: DoctorSchema
 ) => {
   if (!data.id) {
     return { success: false, error: true };
@@ -194,7 +194,7 @@ export const updateTeacher = async (
       lastName: data.surname,
     });
 
-    await prisma.teacher.update({
+    await prisma.doctor.update({
       where: {
         id: data.id,
       },
@@ -207,17 +207,17 @@ export const updateTeacher = async (
         phone: data.phone || null,
         address: data.address,
         img: data.img || null,
-        bloodType: data.bloodType,
+        qualifications: data.Qualifications,
         sex: data.sex,
         birthday: data.birthday,
-        subjects: {
-          set: data.subjects?.map((subjectId: string) => ({
-            id: parseInt(subjectId),
+        specialties: {
+          set: data.specialties?.map((specialtyId: string) => ({
+            id: parseInt(specialtyId),
           })),
         },
       },
     });
-    // revalidatePath("/list/teachers");
+    // revalidatePath("/list/doctors");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -225,7 +225,7 @@ export const updateTeacher = async (
   }
 };
 
-export const deleteTeacher = async (
+export const deleteDoctor = async (
   currentState: CurrentState,
   data: FormData
 ) => {
@@ -233,13 +233,13 @@ export const deleteTeacher = async (
   try {
     await clerkClient.users.deleteUser(id);
 
-    await prisma.teacher.delete({
+    await prisma.doctor.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/teachers");
+    // revalidatePath("/list/doctors");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -247,18 +247,18 @@ export const deleteTeacher = async (
   }
 };
 
-export const createStudent = async (
+export const createPatient = async (
   currentState: CurrentState,
-  data: StudentSchema
+  data: PatientSchema
 ) => {
   console.log(data);
   try {
-    const classItem = await prisma.class.findUnique({
-      where: { id: data.classId },
-      include: { _count: { select: { students: true } } },
+    const departmentItem = await prisma.department.findUnique({
+      where: { id: data.departmentId },
+      include: { _count: { select: { patients: true } } },
     });
 
-    if (classItem && classItem.capacity === classItem._count.students) {
+    if (departmentItem && departmentItem.capacity === departmentItem._count.patients) {
       return { success: false, error: true };
     }
 
@@ -267,10 +267,10 @@ export const createStudent = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"student"}
+      // publicMetadata: { role: "patient" },
     });
 
-    await prisma.student.create({
+    await prisma.patient.create({
       data: {
         id: user.id,
         username: data.username,
@@ -283,13 +283,13 @@ export const createStudent = async (
         bloodType: data.bloodType,
         sex: data.sex,
         birthday: data.birthday,
-        gradeId: data.gradeId,
-        classId: data.classId,
+        areasId: data.areasId,
+        departmentId: data.departmentId,
         parentId: data.parentId,
       },
     });
 
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/patients");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -297,9 +297,9 @@ export const createStudent = async (
   }
 };
 
-export const updateStudent = async (
+export const updatePatient = async (
   currentState: CurrentState,
-  data: StudentSchema
+  data: PatientSchema
 ) => {
   if (!data.id) {
     return { success: false, error: true };
@@ -312,7 +312,7 @@ export const updateStudent = async (
       lastName: data.surname,
     });
 
-    await prisma.student.update({
+    await prisma.patient.update({
       where: {
         id: data.id,
       },
@@ -328,12 +328,12 @@ export const updateStudent = async (
         bloodType: data.bloodType,
         sex: data.sex,
         birthday: data.birthday,
-        gradeId: data.gradeId,
-        classId: data.classId,
+        areasId: data.areasId,
+        departmentId: data.departmentId,
         parentId: data.parentId,
       },
     });
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/patients");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -341,7 +341,7 @@ export const updateStudent = async (
   }
 };
 
-export const deleteStudent = async (
+export const deletePatient = async (
   currentState: CurrentState,
   data: FormData
 ) => {
@@ -349,13 +349,13 @@ export const deleteStudent = async (
   try {
     await clerkClient.users.deleteUser(id);
 
-    await prisma.student.delete({
+    await prisma.patient.delete({
       where: {
         id: id,
       },
     });
 
-    // revalidatePath("/list/students");
+    // revalidatePath("/list/patients");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -363,37 +363,37 @@ export const deleteStudent = async (
   }
 };
 
-export const createExam = async (
+export const createMedicalDescription = async (
   currentState: CurrentState,
-  data: ExamSchema
+  data: MedicalDescriptionSchema
 ) => {
   // const { userId, sessionClaims } = auth();
   // const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   try {
-    // if (role === "teacher") {
-    //   const teacherLesson = await prisma.lesson.findFirst({
+    // if (role === "doctor") {
+    //   const doctorMedical = await prisma.medical.findFirst({
     //     where: {
-    //       teacherId: userId!,
-    //       id: data.lessonId,
+    //       doctorId: userId!,
+    //       id: data.medicalId,
     //     },
     //   });
 
-    //   if (!teacherLesson) {
+    //   if (!doctorMedical) {
     //     return { success: false, error: true };
     //   }
     // }
 
-    await prisma.exam.create({
+    await prisma.description.create({
       data: {
         title: data.title,
         startTime: data.startTime,
         endTime: data.endTime,
-        lessonId: data.lessonId,
+        medicalId: data.medicalId,
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -401,28 +401,28 @@ export const createExam = async (
   }
 };
 
-export const updateExam = async (
+export const updateMedicalDescription = async (
   currentState: CurrentState,
-  data: ExamSchema
+  data: MedicalDescriptionSchema
 ) => {
   // const { userId, sessionClaims } = auth();
   // const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   try {
-    // if (role === "teacher") {
-    //   const teacherLesson = await prisma.lesson.findFirst({
+    // if (role === "doctor") {
+    //   const doctorMedical = await prisma.medical.findFirst({
     //     where: {
-    //       teacherId: userId!,
-    //       id: data.lessonId,
+    //       doctorId: userId!,
+    //       id: data.medicalId,
     //     },
     //   });
 
-    //   if (!teacherLesson) {
+    //   if (!doctorMedical) {
     //     return { success: false, error: true };
     //   }
     // }
 
-    await prisma.exam.update({
+    await prisma.description.update({
       where: {
         id: data.id,
       },
@@ -430,11 +430,11 @@ export const updateExam = async (
         title: data.title,
         startTime: data.startTime,
         endTime: data.endTime,
-        lessonId: data.lessonId,
+        medicalId: data.medicalId,
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);
@@ -442,7 +442,7 @@ export const updateExam = async (
   }
 };
 
-export const deleteExam = async (
+export const deleteDescription = async (
   currentState: CurrentState,
   data: FormData
 ) => {
@@ -452,14 +452,14 @@ export const deleteExam = async (
   // const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   try {
-    await prisma.exam.delete({
+    await prisma.description.delete({
       where: {
         id: parseInt(id),
-        // ...(role === "teacher" ? { lesson: { teacherId: userId! } } : {}),
+        // ...(role === "doctor" ? { medical: { doctorId: userId! } } : {}),
       },
     });
 
-    // revalidatePath("/list/subjects");
+    // revalidatePath("/list/specialties");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);

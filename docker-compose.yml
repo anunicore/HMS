@@ -1,25 +1,52 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   postgress:
+#     image: postgres:15
+#     container_name: postgres_db
+#     environment:
+#       POSTGRES_USER: quocan
+#       POSTGRES_PASSWORD: quocan
+#       POSTGRES_DB: school
+#     ports:
+#       - '5432:5432'
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+#   app:
+#     build: .
+#     container_name: nextjs_app
+#     ports:
+#       - '3000:3000'
+#     environment:
+#       - DATABASE_URL: postgresql://quocan:quocan749@localhost:5432/school
+#     depends_on:
+#       - postgres
+
+# volumes:
+#   postgres_data:
+version: "3.8"
 
 services:
-  postgress:
-    image: postgres:15
+  postgres:
+    image: postgres:17
     container_name: postgres_db
     environment:
       POSTGRES_USER: quocan
-      POSTGRES_PASSWORD: quocan
-      POSTGRES_DB: school
+      POSTGRES_PASSWORD: quocan749
+      POSTGRES_DB: health
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
+
   app:
     build: .
     container_name: nextjs_app
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
-      - DATABASE_URL: "postgresql://quocan:quocan749@localhost:5432/school"
+      - DATABASE_URL=postgresql://quocan:quocan749@localhost:5432/healthdash
     depends_on:
       - postgres
 

@@ -1,27 +1,130 @@
+// import prisma from "@/lib/prisma";
+// import FormModal from "./FormModal";
+// import { auth } from "@clerk/nextjs/server";
+
+// export type FormContainerProps = {
+//   table:
+//     | "doctor"
+//     | "patient"
+//     | "parent"
+//     | "specialty"
+//     | "department"
+//     | "medical"
+//     | "description"
+//     | "assignment"
+//     | "prescription"
+//     | "attendance"
+//     | "event"
+//     | "announcement";
+//   type: "create" | "update" | "delete";
+//   data?: any;
+//   id?: number | string;
+// };
+
+// const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
+//   let relatedData = {};
+
+//   const { userId, sessionClaims } = auth();
+//   const role = (sessionClaims?.metadata as { role?: string })?.role;
+//   const currentUserId = userId;
+
+//   if (type !== "delete") {
+//     switch (table) {
+//       case "specialty":
+//         const specialtyDoctors = await prisma.doctor.findMany({
+//           select: { id: true, name: true, surname: true },
+//         });
+//         relatedData = { doctors: specialtyDoctors };
+//         break;
+//       case "department":
+//         const departmentAreas = await prisma.areas.findMany({
+//           select: { id: true, tower: true },
+//         });
+//         const departmentDoctors = await prisma.doctor.findMany({
+//           select: { id: true, name: true, surname: true },
+//         });
+//         relatedData = { doctors: departmentDoctors, areas: departmentAreas };
+//         break;
+//       case "doctor":
+//         const doctorSpecialties = await prisma.specialty.findMany({
+//           select: { id: true, name: true },
+//         });
+//         relatedData = { specialties: doctorSpecialties };
+//         break;
+//       case "doctor":
+//         const doctorAreas = await prisma.areas.findMany({
+//           select: { id: true, tower: true },
+//         });
+//         const doctorDepartments = await prisma.department.findMany({
+//           include: { _count: { select: { patients: true } } },
+//         });
+//         relatedData = { departments: doctorDepartments, areas: doctorAreas };
+//         break;
+//       case "description":
+//         const description = await prisma.medical.findMany({
+//           where: {
+//             ...(role === "doctor" ? { doctorId: currentUserId! } : {}),
+//           },
+//           select: { id: true, name: true },
+//         });
+//         relatedData = { medicals: description };
+//         break;
+
+//       default:
+//         break;
+//     }
+//   }
+
+//   return (
+//     <div className="">
+//       <FormModal
+//         table={table}
+//         type={type}
+//         data={data}
+//         id={id}
+//         relatedData={relatedData}
+//       />
+//     </div>
+//   );
+// };
+
+// export default FormContainer;
 import prisma from "@/lib/prisma";
 import FormModal from "./FormModal";
 import { auth } from "@clerk/nextjs/server";
 
 export type FormContainerProps = {
   table:
-    | "teacher"
-    | "student"
+    | "doctor"
+    | "patient"
     | "parent"
-    | "subject"
-    | "class"
-    | "lesson"
-    | "exam"
+    | "specialty"
+    | "department"
+    | "medical"
+    | "description"
     | "assignment"
-    | "result"
+    | "prescription"
     | "attendance"
     | "event"
     | "announcement";
   type: "create" | "update" | "delete";
   data?: any;
   id?: number | string;
+  defaultValues?: {
+    name?: string;
+    capacity?: number;
+    supervisorId?: string | null;
+    areasId?: number | null;
+  };
 };
 
-const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
+const FormContainer = async ({
+  table,
+  type,
+  data,
+  id,
+  defaultValues,
+}: FormContainerProps) => {
   let relatedData = {};
 
   const { userId, sessionClaims } = auth();
@@ -30,46 +133,42 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
 
   if (type !== "delete") {
     switch (table) {
-      case "subject":
-        const subjectTeachers = await prisma.teacher.findMany({
-          select: { id: true, name: true, surname: true },
-        });
-        relatedData = { teachers: subjectTeachers };
-        break;
-      case "class":
-        const classGrades = await prisma.grade.findMany({
-          select: { id: true, level: true },
-        });
-        const classTeachers = await prisma.teacher.findMany({
-          select: { id: true, name: true, surname: true },
-        });
-        relatedData = { teachers: classTeachers, grades: classGrades };
-        break;
-      case "teacher":
-        const teacherSubjects = await prisma.subject.findMany({
+      case "patient":
+        const departments = await prisma.department.findMany({
           select: { id: true, name: true },
         });
-        relatedData = { subjects: teacherSubjects };
+        relatedData = { departments };
         break;
-      case "student":
-        const studentGrades = await prisma.grade.findMany({
-          select: { id: true, level: true },
+      case "specialty":
+        const specialtyDoctors = await prisma.doctor.findMany({
+          select: { id: true, name: true, surname: true },
         });
-        const studentClasses = await prisma.class.findMany({
-          include: { _count: { select: { students: true } } },
-        });
-        relatedData = { classes: studentClasses, grades: studentGrades };
+        relatedData = { doctors: specialtyDoctors };
         break;
-      case "exam":
-        const examLessons = await prisma.lesson.findMany({
+      case "department":
+        const departmentAreas = await prisma.areas.findMany({
+          select: { id: true, tower: true },
+        });
+        const departmentDoctors = await prisma.doctor.findMany({
+          select: { id: true, name: true, surname: true },
+        });
+        relatedData = { doctors: departmentDoctors, areas: departmentAreas };
+        break;
+      case "doctor":
+        const doctorSpecialties = await prisma.specialty.findMany({
+          select: { id: true, name: true },
+        });
+        relatedData = { specialties: doctorSpecialties };
+        break;
+      case "description":
+        const description = await prisma.medical.findMany({
           where: {
-            ...(role === "teacher" ? { teacherId: currentUserId! } : {}),
+            ...(role === "doctor" ? { doctorId: currentUserId! } : {}),
           },
           select: { id: true, name: true },
         });
-        relatedData = { lessons: examLessons };
+        relatedData = { medicals: description };
         break;
-
       default:
         break;
     }
@@ -83,6 +182,7 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         data={data}
         id={id}
         relatedData={relatedData}
+        defaultValues={defaultValues}
       />
     </div>
   );
